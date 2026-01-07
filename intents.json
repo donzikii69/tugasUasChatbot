@@ -1,0 +1,46 @@
+{
+  "intents": [
+    {
+      "tag": "greetings",
+      "patterns": ["Hi", "Hello", "Pagi", "Halo", "Ada orang?", "Selamat siang"],
+      "responses": ["Halo! Selamat datang di Layanan Feri. Ada yang bisa saya bantu?", "Hai! Saya asisten virtual kapal feri Anda. Apa yang ingin Anda ketahui?"],
+      "context_set": ""
+    },
+    {
+      "tag": "schedule",
+      "patterns": ["Jadwal kapal", "Jam berapa berangkat?", "Kapan feri selanjutnya?", "Waktu keberangkatan"],
+      "responses": ["Kapal berangkat setiap 2 jam sekali dari jam 06:00 sampai 22:00.", "Jadwal harian tersedia dari jam 6 pagi. Apakah Anda ingin mengecek rute spesifik?"],
+      "context_set": ""
+    },
+    {
+      "tag": "pricing",
+      "patterns": ["Harga tiket", "Berapa biayanya?", "Ongkos ke Merak", "Harga kelas bisnis"],
+      "responses": ["Tiket ekonomi mulai dari Rp50.000 dan Bisnis Rp150.000.", "Harga tergantung rute. Untuk rute utama, dewasa dikenakan Rp50.000."],
+      "context_set": ""
+    },
+    {
+      "tag": "cancellation",
+      "patterns": ["Batal tiket", "Refund", "Cara mengembalikan uang", "Cancel booking"],
+      "responses": ["Pembatalan bisa dilakukan maksimal 2 jam sebelum keberangkatan dengan potongan admin 25%.", "Silakan kunjungi loket resmi atau menu 'My Booking' di aplikasi untuk refund."],
+      "context_set": ""
+    },
+    {
+      "tag": "facilities",
+      "patterns": ["Fasilitas", "Ada wifi?", "Makan gratis?", "Kantin", "Musholla"],
+      "responses": ["Kapal kami dilengkapi AC, Kantin, Musholla, dan area bermain anak.", "Tersedia WiFi gratis di area lobi utama kapal kelas Eksekutif."],
+      "context_set": ""
+    },
+    {
+      "tag": "emergency",
+      "patterns": ["Darurat", "Bantuan medis", "Sakit", "Pelampung dimana?"],
+      "responses": ["Segera hubungi kru kapal yang bertugas atau menuju ke ruang medis di Deck 2.", "Jaket keselamatan tersedia di bawah setiap kursi penumpang."],
+      "context_set": ""
+    },
+    {
+      "tag": "goodbye",
+      "patterns": ["Bye", "Terima kasih", "Sudah", "Dadah"],
+      "responses": ["Sama-sama! Semoga perjalanan Anda menyenangkan.", "Sampai jumpa! Hati-hati di jalan."],
+      "context_set": ""
+    }
+  ]
+}
