@@ -2,44 +2,172 @@
   "intents": [
     {
       "tag": "greetings",
-      "patterns": ["Hi", "Hello", "Pagi", "Halo", "Ada orang?", "Selamat siang"],
-      "responses": ["Halo! Selamat datang di Layanan Feri. Ada yang bisa saya bantu?", "Hai! Saya asisten virtual kapal feri Anda. Apa yang ingin Anda ketahui?"],
+      "patterns": [
+        "Hi", "Hello", "Halo", "Pagi", "Siang", "Sore", "Malam",
+        "Ada orang?", "Permisi", "Selamat siang", "Assalamualaikum"
+      ],
+      "responses": [
+        "Halo! Selamat datang di Layanan Feri. Ada yang bisa saya bantu?",
+        "Hai! Saya asisten virtual kapal feri Anda. Silakan bertanya.",
+        "Halo 👋 Ada informasi feri yang ingin Anda ketahui?"
+      ],
       "context_set": ""
     },
+
     {
       "tag": "schedule",
-      "patterns": ["Jadwal kapal", "Jam berapa berangkat?", "Kapan feri selanjutnya?", "Waktu keberangkatan"],
-      "responses": ["Kapal berangkat setiap 2 jam sekali dari jam 06:00 sampai 22:00.", "Jadwal harian tersedia dari jam 6 pagi. Apakah Anda ingin mengecek rute spesifik?"],
+      "patterns": [
+        "Jadwal kapal", "Jam berapa berangkat?", "Kapan feri selanjutnya?",
+        "Waktu keberangkatan", "Jadwal hari ini", "Berangkat jam berapa",
+        "Kapal berangkat kapan"
+      ],
+      "responses": [
+        "Kapal berangkat setiap 2 jam sekali mulai pukul 06:00 hingga 22:00.",
+        "Keberangkatan tersedia dari pagi hingga malam setiap hari.",
+        "Silakan sebutkan rute untuk jadwal yang lebih spesifik."
+      ],
       "context_set": ""
     },
+
     {
       "tag": "pricing",
-      "patterns": ["Harga tiket", "Berapa biayanya?", "Ongkos ke Merak", "Harga kelas bisnis"],
-      "responses": ["Tiket ekonomi mulai dari Rp50.000 dan Bisnis Rp150.000.", "Harga tergantung rute. Untuk rute utama, dewasa dikenakan Rp50.000."],
+      "patterns": [
+        "Harga tiket", "Berapa biayanya?", "Ongkos ke Merak",
+        "Harga kelas bisnis", "Harga penumpang", "Tiket berapa",
+        "Biaya naik kapal"
+      ],
+      "responses": [
+        "Harga tiket ekonomi mulai dari Rp50.000 dan bisnis Rp150.000.",
+        "Harga dapat berbeda tergantung rute dan jenis layanan.",
+        "Untuk rute utama, tiket dewasa dikenakan Rp50.000."
+      ],
       "context_set": ""
     },
+
+    {
+      "tag": "booking",
+      "patterns": [
+        "Pesan tiket", "Cara booking", "Beli tiket",
+        "Pemesanan online", "Booking feri", "Reservasi tiket"
+      ],
+      "responses": [
+        "Tiket dapat dipesan melalui aplikasi resmi atau loket pelabuhan.",
+        "Silakan lakukan pemesanan melalui website atau aplikasi feri.",
+        "Booking dapat dilakukan maksimal H-1 sebelum keberangkatan."
+      ],
+      "context_set": ""
+    },
+
     {
       "tag": "cancellation",
-      "patterns": ["Batal tiket", "Refund", "Cara mengembalikan uang", "Cancel booking"],
-      "responses": ["Pembatalan bisa dilakukan maksimal 2 jam sebelum keberangkatan dengan potongan admin 25%.", "Silakan kunjungi loket resmi atau menu 'My Booking' di aplikasi untuk refund."],
+      "patterns": [
+        "Batal tiket", "Refund", "Cara mengembalikan uang",
+        "Cancel booking", "Pembatalan tiket"
+      ],
+      "responses": [
+        "Pembatalan dapat dilakukan maksimal 2 jam sebelum keberangkatan.",
+        "Refund dikenakan potongan biaya administrasi sebesar 25%.",
+        "Silakan lakukan pembatalan melalui menu My Booking."
+      ],
       "context_set": ""
     },
+
     {
       "tag": "facilities",
-      "patterns": ["Fasilitas", "Ada wifi?", "Makan gratis?", "Kantin", "Musholla"],
-      "responses": ["Kapal kami dilengkapi AC, Kantin, Musholla, dan area bermain anak.", "Tersedia WiFi gratis di area lobi utama kapal kelas Eksekutif."],
+      "patterns": [
+        "Fasilitas", "Ada wifi?", "Makan gratis?",
+        "Kantin", "Musholla", "Toilet", "AC"
+      ],
+      "responses": [
+        "Kapal dilengkapi AC, musholla, toilet, dan kantin.",
+        "WiFi gratis tersedia untuk penumpang kelas Eksekutif.",
+        "Area bermain anak tersedia di kapal tertentu."
+      ],
       "context_set": ""
     },
+
+    {
+      "tag": "vehicle",
+      "patterns": [
+        "Bawa mobil", "Bawa motor", "Kendaraan",
+        "Motor masuk kapal", "Mobil naik feri"
+      ],
+      "responses": [
+        "Kapal feri melayani penyeberangan kendaraan roda dua dan roda empat.",
+        "Biaya kendaraan tergantung jenis dan ukuran kendaraan.",
+        "Silakan datang lebih awal untuk kendaraan bermotor."
+      ],
+      "context_set": ""
+    },
+
+    {
+      "tag": "checkin",
+      "patterns": [
+        "Check-in", "Check in", "Masuk kapal",
+        "Proses naik kapal", "Antrian masuk kapal"
+      ],
+      "responses": [
+        "Check-in dibuka 1 jam sebelum keberangkatan.",
+        "Silakan siapkan tiket dan identitas saat check-in.",
+        "Petugas akan membantu proses masuk kapal."
+      ],
+      "context_set": ""
+    },
+
     {
       "tag": "emergency",
-      "patterns": ["Darurat", "Bantuan medis", "Sakit", "Pelampung dimana?"],
-      "responses": ["Segera hubungi kru kapal yang bertugas atau menuju ke ruang medis di Deck 2.", "Jaket keselamatan tersedia di bawah setiap kursi penumpang."],
+      "patterns": [
+        "Darurat", "Bantuan medis", "Sakit",
+        "Kecelakaan", "Pelampung dimana?",
+        "Keadaan darurat"
+      ],
+      "responses": [
+        "Segera hubungi kru kapal terdekat.",
+        "Ruang medis tersedia di Deck 2 kapal.",
+        "Jaket keselamatan berada di bawah kursi penumpang."
+      ],
       "context_set": ""
     },
+
+    {
+      "tag": "complaint",
+      "patterns": [
+        "Komplain", "Keluhan", "Layanan buruk",
+        "Laporkan masalah", "Pengaduan"
+      ],
+      "responses": [
+        "Kami mohon maaf atas ketidaknyamanannya.",
+        "Silakan sampaikan keluhan melalui layanan pelanggan.",
+        "Kami akan segera menindaklanjuti laporan Anda."
+      ],
+      "context_set": ""
+    },
+
+    {
+      "tag": "weather",
+      "patterns": [
+        "Cuaca", "Ombak", "Aman berlayar?",
+        "Cuaca hari ini", "Gelombang laut"
+      ],
+      "responses": [
+        "Keberangkatan selalu mempertimbangkan kondisi cuaca.",
+        "Jika cuaca buruk, jadwal dapat mengalami penyesuaian.",
+        "Keselamatan penumpang adalah prioritas utama."
+      ],
+      "context_set": ""
+    },
+
     {
       "tag": "goodbye",
-      "patterns": ["Bye", "Terima kasih", "Sudah", "Dadah"],
-      "responses": ["Sama-sama! Semoga perjalanan Anda menyenangkan.", "Sampai jumpa! Hati-hati di jalan."],
+      "patterns": [
+        "Bye", "Terima kasih", "Sudah",
+        "Dadah", "Sampai jumpa", "Thanks"
+      ],
+      "responses": [
+        "Sama-sama! Semoga perjalanan Anda menyenangkan.",
+        "Terima kasih telah menggunakan layanan kami.",
+        "Sampai jumpa dan selamat jalan!"
+      ],
       "context_set": ""
     }
   ]
