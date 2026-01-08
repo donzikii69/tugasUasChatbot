@@ -8,75 +8,118 @@
 </head>
 <body class="bg-slate-900 h-screen flex flex-col text-white">
 
-    <div id="chat-window" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-800">
-        <div class="bg-blue-600 p-3 rounded-lg max-w-xs shadow-md">
-            Halo! Saya asisten cerdas berbasis ML. Tanyakan sesuatu tentang layanan Feri kami.
-        </div>
+<!-- CHAT WINDOW -->
+<div id="chat-window" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-800">
+    <div class="bg-blue-600 p-3 rounded-lg max-w-xs shadow-md">
+        Halo! Saya asisten berbasis Naive Bayes + LLM.  
+        Tanyakan seputar layanan feri atau pertanyaan umum.
     </div>
+</div>
 
-    <div class="bg-slate-900 p-4 border-t border-slate-700">
-        <form id="chat-form" class="flex gap-2 max-w-4xl mx-auto">
-            <input type="text" id="user-input" class="flex-1 bg-slate-700 border-none p-3 rounded-lg focus:ring-2 focus:ring-blue-500 text-white" placeholder="Ketik pesan atau angka...">
-            <button type="submit" class="bg-blue-600 px-6 py-2 rounded-lg font-bold hover:bg-blue-500 transition">KIRIM</button>
-        </form>
-    </div>
+<!-- INPUT -->
+<div class="bg-slate-900 p-4 border-t border-slate-700">
+    <form id="chat-form" class="flex gap-2 max-w-4xl mx-auto">
+        <input id="user-input" class="flex-1 bg-slate-700 p-3 rounded-lg focus:ring-2 focus:ring-blue-500"
+               placeholder="Ketik pertanyaan..." />
+        <button class="bg-blue-600 px-6 rounded-lg font-bold hover:bg-blue-500">KIRIM</button>
+    </form>
+</div>
 
-    <div class="bg-slate-950 border-t border-blue-900 p-4 h-40">
-        <div class="max-w-4xl mx-auto">
-            <h3 class="text-blue-400 text-xs font-bold uppercase mb-2 tracking-widest"><i class="fas fa-microchip mr-2"></i> Real-time NLP Analysis</h3>
-            <div class="grid grid-cols-4 gap-4">
-                <div class="bg-slate-900 p-2 rounded border border-slate-800">
-                    <p class="text-[10px] text-slate-500 uppercase">Predicted Tag</p>
-                    <p id="ana-tag" class="font-mono text-blue-300">-</p>
-                </div>
-                <div class="bg-slate-900 p-2 rounded border border-slate-800">
-                    <p class="text-[10px] text-slate-500 uppercase">Confidence</p>
-                    <p id="ana-conf" class="font-mono text-green-400">-</p>
-                </div>
-                <div class="bg-slate-900 p-2 rounded border border-slate-800">
-                    <p class="text-[10px] text-slate-500 uppercase">Model</p>
-                    <p id="ana-model" class="font-mono text-purple-400">Naive Bayes</p>
-                </div>
-                <div class="bg-slate-900 p-2 rounded border border-slate-800 overflow-hidden">
-                    <p class="text-[10px] text-slate-500 uppercase">Tokens</p>
-                    <p id="ana-tokens" class="font-mono text-xs text-yellow-500 truncate">-</p>
-                </div>
+<!-- ANALYSIS PANEL -->
+<div class="bg-slate-950 border-t border-blue-900 p-4">
+    <div class="max-w-4xl mx-auto">
+        <h3 class="text-blue-400 text-xs font-bold uppercase mb-2">
+            <i class="fas fa-microchip mr-2"></i>Real-time NLP Analysis
+        </h3>
+
+        <div class="grid grid-cols-4 gap-4 text-xs">
+            <div class="bg-slate-900 p-2 rounded">
+                <p class="text-slate-500">Tag</p>
+                <p id="ana-tag" class="text-blue-400">-</p>
+            </div>
+            <div class="bg-slate-900 p-2 rounded">
+                <p class="text-slate-500">Confidence</p>
+                <p id="ana-conf" class="text-green-400">-</p>
+            </div>
+            <div class="bg-slate-900 p-2 rounded">
+                <p class="text-slate-500">Model</p>
+                <p class="text-purple-400">Naive Bayes</p>
+            </div>
+            <div class="bg-slate-900 p-2 rounded truncate">
+                <p class="text-slate-500">Tokens</p>
+                <p id="ana-tokens" class="text-yellow-400">-</p>
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const chatForm = document.getElementById('chat-form');
-        const userInput = document.getElementById('user-input');
-        const chatWindow = document.getElementById('chat-window');
+<!-- HISTORY TABLE -->
+<div class="bg-slate-950 border-t border-slate-700 p-4 h-64 overflow-auto">
+    <div class="max-w-6xl mx-auto">
+        <h3 class="text-blue-400 text-xs font-bold uppercase mb-2">
+            Riwayat Analisis
+        </h3>
 
-        function appendMessage(text, isUser = false) {
-            const msg = document.createElement('div');
-            msg.className = isUser ? "flex justify-end" : "flex justify-start";
-            msg.innerHTML = `<div class="${isUser ? 'bg-slate-700' : 'bg-blue-600'} p-3 rounded-lg max-w-xs shadow-md">${text}</div>`;
-            chatWindow.appendChild(msg);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
+        <table class="w-full text-xs text-start border border-slate-700">
+            <thead class="bg-slate-800">
+                <tr>
+                    <th class="p-2">Pertanyaan</th>
+                    <th class="p-2">Tag</th>
+                    <th class="p-2">Confidence</th>
+                </tr>
+            </thead>
+            <tbody id="history-table"></tbody>
+        </table>
+    </div>
+</div>
 
-        chatForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const msg = userInput.value;
-            if(!msg) return;
+<script>
+const chatForm = document.getElementById('chat-form');
+const userInput = document.getElementById('user-input');
+const chatWindow = document.getElementById('chat-window');
+const historyTable = document.getElementById('history-table');
 
-            appendMessage(msg, true);
-            userInput.value = '';
+function appendMessage(text, isUser=false) {
+    const msg = document.createElement('div');
+    msg.className = isUser ? "flex justify-end" : "flex justify-start";
+    msg.innerHTML = `
+        <div class="${isUser ? 'bg-slate-700' : 'bg-blue-600'} p-3 rounded-lg max-w-xs">
+            ${text}
+        </div>`;
+    chatWindow.appendChild(msg);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+}
 
-            const res = await fetch(`/get?msg=${encodeURIComponent(msg)}`);
-            const data = await res.json();
+function addHistory(q, a) {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td class="p-2">${q}</td>
+        <td class="p-2 text-blue-400">${a.tag}</td>
+        <td class="p-2 text-green-400">${a.confidence}</td>`;
+    historyTable.prepend(row);
+}
 
-            // Tampilkan Pesan Bot
-            appendMessage(data.reply);
+chatForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const msg = userInput.value;
+    if(!msg) return;
 
-            // Update Panel Analisis di bawah UI
-            document.getElementById('ana-tag').innerText = data.analysis.tag;
-            document.getElementById('ana-conf').innerText = data.analysis.confidence;
-            document.getElementById('ana-tokens').innerText = JSON.stringify(data.analysis.tokens);
-        };
-    </script>
+    appendMessage(msg, true);
+    userInput.value = '';
+
+    const res = await fetch(`/get?msg=${encodeURIComponent(msg)}`);
+    const data = await res.json();
+
+    appendMessage(data.reply);
+
+    document.getElementById('ana-tag').innerText = data.analysis.tag;
+    document.getElementById('ana-conf').innerText = data.analysis.confidence;
+    document.getElementById('ana-tokens').innerText =
+        JSON.stringify(data.analysis.tokens);
+
+    addHistory(msg, data.analysis);
+};
+</script>
+
 </body>
 </html>
