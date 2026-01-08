@@ -1,97 +1,131 @@
-import os
+from flask import Flask, request, jsonify, render_template
 import json
 import random
 import nltk
-from flask import Flask, render_template, request, jsonify
-from nltk.tokenize import word_tokenize
+import numpy as np
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import CountVectorizer
+from groq import Groq
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+nltk.download('punkt')
 
 app = Flask(__name__)
 
-# --- KONFIGURASI NLTK KHUSUS VERCEL ---
-# Mengarahkan download ke folder /tmp karena Vercel tidak mengizinkan tulis di root
-nltk_data_dir = '/tmp/nltk_data'
-if not os.path.exists(nltk_data_dir):
-    os.makedirs(nltk_data_dir)
-nltk.data.path.append(nltk_data_dir)
+# =========================
+# LOAD DATASET
+# =========================
+with open("intents.json", encoding="utf-8") as f:
+    intents = json.load(f)
 
-# Download hanya komponen minimal
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt', download_dir=nltk_data_dir)
-try:
-    nltk.data.find('tokenizers/punkt_tab')
-except LookupError:
-    nltk.download('punkt_tab', download_dir=nltk_data_dir)
+sentences = []
+labels = []
 
-# --- LOAD DATA ---
-with open('intents.json', 'r') as file:
-    intents_data = json.load(file)
+for intent in intents["intents"]:
+    for pattern in intent["patterns"]:
+        sentences.append(pattern)
+        labels.append(intent["tag"])
 
-def calculate_similarity(user_tokens, pattern_tokens):
-    """Menghitung skor kecocokan antara input user dan database"""
-    words_match = set(user_tokens).intersection(set(pattern_tokens))
-    if not pattern_tokens: return 0
-    return len(words_match) / len(set(user_tokens).union(set(pattern_tokens)))
+# =========================
+# NAIVE BAYES TRAINING
+# =========================
+vectorizer = CountVectorizer(tokenizer=nltk.word_tokenize)
+X = vectorizer.fit_transform(sentences)
+y = labels
 
-def get_bot_response(user_message):
-    user_message = user_message.lower().strip()
-    user_tokens = word_tokenize(user_message)
-    
-    # Priority 1: Menu Angka
-    menu_map = {"1": "schedule", "2": "pricing", "3": "facilities", "4": "cancellation"}
-    if user_message in menu_map:
-        tag = menu_map[user_message]
-        confidence = 1.0
-    else:
-        # Priority 2: Similarity Matching (Logika NLP)
-        best_tag = None
-        max_sim = 0
-        
-        for intent in intents_data['intents']:
-            for pattern in intent['patterns']:
-                pattern_tokens = word_tokenize(pattern.lower())
-                sim = calculate_similarity(user_tokens, pattern_tokens)
-                if sim > max_sim:
-                    max_sim = sim
-                    best_tag = intent['tag']
-        
-        tag = best_tag
-        confidence = max_sim
+model = MultinomialNB()
+model.fit(X, y)
 
-    # Respon jika tidak ditemukan
-    if not tag or confidence < 0.15:
-        return {
-            "reply": "Maaf, saya kurang mengerti. Coba tanyakan jadwal, harga, atau pilih angka 1-4.",
-            "analysis": {"tag": "Unknown", "confidence": "0%", "tokens": user_tokens}
-        }
+all_words = set(vectorizer.get_feature_names_out())
 
-    # Ambil Jawaban
-    for intent in intents_data['intents']:
-        if intent['tag'] == tag:
-            res = random.choice(intent['responses'])
-            if tag == "greetings":
-                res += "<br><br>1. Jadwal<br>2. Harga<br>3. Fasilitas"
-            
-            return {
-                "reply": res,
-                "analysis": {
-                    "tag": tag, 
-                    "confidence": f"{round(confidence * 100, 2)}%", 
-                    "tokens": user_tokens,
-                    "method": "NLP Similarity Match"
-                }
-            }
+# =========================
+# GROQ CONFIG
+# =========================
+groq_client = Groq(
+    api_key=os.getenv("GROQ_API_KEY")
+)
 
+# =========================
+# UTIL FUNCTIONS
+# =========================
+def predict_class(text):
+    vec = vectorizer.transform([text])
+    probs = model.predict_proba(vec)[0]
+    classes = model.classes_
+
+    best_idx = np.argmax(probs)
+    tag = classes[best_idx]
+    confidence = probs[best_idx]
+
+    tokens = nltk.word_tokenize(text.lower())
+
+    prob_map = dict(zip(classes, probs.round(4)))
+
+    return tag, confidence, tokens, prob_map
+
+
+def get_response(tag):
+    for intent in intents["intents"]:
+        if intent["tag"] == tag:
+            return random.choice(intent["responses"])
+    return "Maaf, saya belum mengerti."
+
+
+def is_related_to_json(tokens):
+    return any(token in all_words for token in tokens)
+
+
+def ask_groq(question):
+    completion = groq_client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        messages=[
+            {
+                "role": "system",
+                "content": "Kamu adalah asisten umum yang menjawab pertanyaan di luar konteks layanan feri."
+            },
+            {"role": "user", "content": question}
+        ],
+        temperature=0.7
+    )
+    return completion.choices[0].message.content
+
+
+# =========================
+# ROUTES
+# =========================
 @app.route("/")
-def home():
+def index():
     return render_template("index.html")
 
+
 @app.route("/get")
-def get_bot_response_route():
-    msg = request.args.get('msg')
-    # Mengembalikan data JSON lengkap untuk UI Dashboard
-    return jsonify(get_bot_response(msg))
+def chatbot_response():
+    msg = request.args.get("msg")
+
+    tag, confidence, tokens, probabilities = predict_class(msg)
+    related = is_related_to_json(tokens)
+
+    use_groq = False
+
+    if confidence < 0.6 or not related:
+        reply = ask_groq(msg)
+        use_groq = True
+    else:
+        reply = get_response(tag)
+
+    return jsonify({
+        "reply": reply,
+        "analysis": {
+            "tag": tag,
+            "confidence": round(float(confidence), 3),
+            "tokens": tokens,
+            "probabilities": probabilities,
+            "fallback_to_groq": use_groq
+        }
+    })
+
 
 if __name__ == "__main__":
     app.run(debug=True)
